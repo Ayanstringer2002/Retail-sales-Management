@@ -1,40 +1,58 @@
 # Architecture Document
 
 ## Backend architecture
-- Express.js server with a single public endpoint: `GET /api/sales`
-- MongoDB (Mongoose) for data storage
-- Single-service query builder to create filters, search, sorting, and pagination
-- Models folder contains `Sale` Mongoose schema
-- Controllers handle request/response and delegate to services
+- Node.js + Express server.
+- MongoDB (Mongoose) for storage.
+- Layered structure:
+  - models/ : Mongoose schema (Sale.js)
+  - services/ : Business logic, query construction (salesService.js)
+  - controllers/ : Accepts HTTP, delegates to services (salesController.js)
+  - routes/ : Express routes (salesRoutes.js)
+  - utils/ : helpers (db.js)
+- API: GET /api/sales accepts query parameters for search, filters, sort, pagination.
 
 ## Frontend architecture
-- React (Vite) single page app
+- React app (Vite).
 - Components:
-  - SearchBar: submit search query
-  - FilterPanel: multi-selects & ranges
-  - SortDropdown: sorting selections
-  - TransactionsTable: renders items
-  - PaginationControls: page navigation
-- Services:
-  - api.js: axios wrapper to call `/api/sales`
-- Hook:
-  - useQueryState: centralized query state for search, filters, sort, page
+  - SearchBar.jsx
+  - FilterPanel.jsx
+  - TransactionsTable.jsx
+  - SortDropdown.jsx
+  - PaginationControls.jsx
+- services/api.js centralizes network calls.
+- hooks/useQueryState.js: single source of truth for UI state, synced to URL.
+- utils/helpers.js contains small utilities.
 
 ## Data flow
-1. User changes UI (search / filter / sort / page)
-2. UI Updates centralized query state via `useQueryState`
-3. `App` effect triggers fetchSales(query)
-4. Backend receives query params, `salesService` builds Mongoose filters
-5. Backend returns paginated result (items, totalCount, totalPages)
-6. Frontend updates UI and pagination controls
+1. UI components update query state via useQueryState (URL sync).
+2. TransactionsTable reads state and calls fetchSales(params) in services/api.js.
+3. Backend receives query, salesController forwards to salesService.querySales().
+4. salesService constructs a MongoDB query (supports $text search, $in for multi-selects,
+   range queries for age and date) and executes it with pagination and sorting.
+5. Response delivered to frontend, table renders results.
 
 ## Folder structure
-(As described in project layout above)
+(root)
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   └── index.js
+│   └── scripts/seed.js
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   ├── hooks/
+│   │   └── styles/
+└── docs/
 
 ## Module responsibilities
-- controllers/: request validation & response
-- services/: business logic and DB query composition
-- routes/: express route declarations
-- models/: Mongoose schema
-- frontend/components/: UI and interaction logic
-- frontend/services/: API calls
+- Sale model: schema + text index for search.
+- salesService: constructs MongoDB query and applies sorting & pagination.
+- salesController: maps HTTP request to service call; handles errors.
+- Frontend components: small focused UI pieces. No duplication of filter/sort logic: frontend just passes state to backend.
