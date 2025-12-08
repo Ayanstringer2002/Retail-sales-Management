@@ -6,6 +6,7 @@ import SortDropdown from './components/SortDropdown';
 import PaginationControls from './components/PaginationControls';
 import './styles/main.css';
 
+
 export default function App() {
   return (
     <div className="app">
