@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import TransactionsTable from './components/TransactionsTable';
+import SearchBar from './components/SearchBar';
+import FilterPanel from './components/FilterPanel';
+import SortDropdown from './components/SortDropdown';
+import PaginationControls from './components/PaginationControls';
+import './styles/main.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="app">
+      <header className="app-header">
+        <h1>Retail Sales Management</h1>
+      </header>
+      <main className="app-main">
+        <div className="controls">
+          <SearchBar />
+          <SortDropdown />
+        </div>
+        <div className="layout">
+          <aside className="filters">
+            <FilterPanel />
+          </aside>
+          <section className="table-section">
+            <TransactionsTable />
+            <PaginationControls />
+          </section>
+        </div>
+      </main>
+    </div>
+  );
 }
-
-export default App
